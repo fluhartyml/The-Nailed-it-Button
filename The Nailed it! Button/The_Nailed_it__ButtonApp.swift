@@ -12,7 +12,6 @@ import SwiftData
 struct The_Nailed_it__ButtonApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

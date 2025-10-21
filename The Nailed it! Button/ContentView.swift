@@ -2,59 +2,101 @@
 //  ContentView.swift
 //  The Nailed it! Button
 //
-//  Created by Michael Fluharty on 10/21/25.
+//  Main button interface with hazard stripe design
 //
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @State private var isPressed = false
+    @AppStorage("selectedVoice") private var selectedVoice = "reed"
+    @State private var showSettings = false
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        ZStack {
+            // Background
+            Color.black
+                .ignoresSafeArea()
+            
+            VStack {
+                // Settings button in top-right
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        showSettings = true
+                    }) {
+                        Image(systemName: "gearshape.fill")
+                            .font(.title2)
+                            .foregroundColor(.white.opacity(0.7))
+                            .padding()
                     }
                 }
-                .onDelete(perform: deleteItems)
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                
+                Spacer()
+                
+                // The Big Red Button
+                Button(action: {
+                    pressButton()
+                }) {
+                    ZStack {
+                        // Base circle
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 280, height: 280)
+                            .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
+                        
+                        // Hazard stripes overlay
+                        HazardStripes()
+                            .frame(width: 280, height: 280)
+                            .clipShape(Circle())
+                            .opacity(0.6)
+                        
+                        // Button text
+                        Text("NAILED IT!")
+                            .font(.system(size: 32, weight: .black, design: .rounded))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 2)
                     }
                 }
+                .scaleEffect(isPressed ? 0.95 : 1.0)
+                .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
+                
+                Spacer()
             }
-        } detail: {
-            Text("Select an item")
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
         }
     }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+    
+    private func pressButton() {
+        // Haptic feedback
+        let impact = UIImpactFeedbackGenerator(style: .heavy)
+        impact.impactOccurred()
+        
+        // Button press animation
+        isPressed = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            isPressed = false
         }
+        
+        // Play audio
+        AudioService.shared.playVoice(selectedVoice)
     }
+}
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+// Hazard stripe pattern view
+struct HazardStripes: View {
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                ForEach(0..<20) { index in
+                    Rectangle()
+                        .fill(index % 2 == 0 ? Color.yellow : Color.red)
+                        .frame(width: 60)
+                        .rotationEffect(.degrees(45))
+                        .offset(x: CGFloat(index * 40) - geometry.size.width)
+                }
             }
         }
     }
@@ -62,5 +104,4 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
