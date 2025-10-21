@@ -1,9 +1,10 @@
-
 //
 //  AudioService.swift
 //  The Nailed it! Button
 //
 //  Audio playback management for voice files
+//
+//  Last updated: 2025 OCT 21 0836
 //
 
 import AVFoundation
@@ -24,6 +25,7 @@ class AudioService {
     }
     
     func playVoice(_ voiceName: String) {
+        // Load from bundle
         guard let url = Bundle.main.url(forResource: "nailed-it-\(voiceName)", withExtension: "aiff") else {
             print("Audio file not found: nailed-it-\(voiceName).aiff")
             return
@@ -41,8 +43,8 @@ class AudioService {
     static let voices = [
         "reed": "Reed (Professional)",
         "zarvox": "Zarvox (Classic Robot)",
-        "grandpa": "Grandpa (Old Robot)",
-        "fred": "Fred (Goofy Robot)",
+        "rishi": "Rishi (Smooth Robot)",
+        "rocko": "Rocko (Energetic Robot)",
         "albert": "Albert (Gruff Robot)"
     ]
 }
