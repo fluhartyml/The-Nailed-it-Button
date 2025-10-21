@@ -38,7 +38,33 @@ struct ContentView: View {
                 
                 // Industrial button panel with hardware
                 ZStack {
-                    // The Big Red Button
+                    // Aluminum metal panel (square behind button)
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color(white: 0.75),
+                                    Color(white: 0.55),
+                                    Color(white: 0.65)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 360, height: 360)
+                        .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
+                    
+                    // Hardware bolts in corners of the aluminum panel
+                    HexBolt()
+                        .offset(x: -155, y: -155)
+                    HexBolt()
+                        .offset(x: 155, y: -155)
+                    HexBolt()
+                        .offset(x: -155, y: 155)
+                    HexBolt()
+                        .offset(x: 155, y: 155)
+                    
+                    // The Big Red Button (on top of panel)
                     Button(action: {
                         pressButton()
                     }) {
@@ -82,16 +108,6 @@ struct ContentView: View {
                     }
                     .scaleEffect(isPressed ? 0.92 : 1.0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
-                    
-                    // Hardware bolts in corners
-                    HexBolt()
-                        .offset(x: -160, y: -160)
-                    HexBolt()
-                        .offset(x: 160, y: -160)
-                    HexBolt()
-                        .offset(x: -160, y: 160)
-                    HexBolt()
-                        .offset(x: 160, y: 160)
                 }
                 
                 Spacer()
@@ -138,47 +154,35 @@ struct HazardStripeBackground: View {
     }
 }
 
-// Steampunk hex bolt/allen bolt hardware
+// Industrial rivet hardware
 struct HexBolt: View {
     var body: some View {
         ZStack {
-            // Bolt head (hexagon)
+            // Rivet head outer circle (darker base)
+            Circle()
+                .fill(Color(white: 0.35))
+                .frame(width: 40, height: 40)
+                .shadow(color: .black.opacity(0.4), radius: 2, x: 1, y: 2)
+            
+            // Rivet head (metallic gradient)
             Circle()
                 .fill(
                     RadialGradient(
                         gradient: Gradient(colors: [
-                            Color(white: 0.5),
-                            Color(white: 0.3)
+                            Color(white: 0.55),
+                            Color(white: 0.40)
                         ]),
                         center: .topLeading,
-                        startRadius: 5,
-                        endRadius: 20
+                        startRadius: 2,
+                        endRadius: 18
                     )
                 )
                 .frame(width: 35, height: 35)
-                .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 2)
             
-            // Hex pattern in center
-            Path { path in
-                let center = CGPoint(x: 17.5, y: 17.5)
-                let radius: CGFloat = 12
-                
-                for i in 0..<6 {
-                    let angle = CGFloat(i) * .pi / 3 - .pi / 2
-                    let point = CGPoint(
-                        x: center.x + radius * cos(angle),
-                        y: center.y + radius * sin(angle)
-                    )
-                    
-                    if i == 0 {
-                        path.move(to: point)
-                    } else {
-                        path.addLine(to: point)
-                    }
-                }
-                path.closeSubpath()
-            }
-            .stroke(Color.black.opacity(0.6), lineWidth: 2)
+            // Center indent (rivet detail)
+            Circle()
+                .fill(Color.black.opacity(0.3))
+                .frame(width: 8, height: 8)
         }
     }
 }
